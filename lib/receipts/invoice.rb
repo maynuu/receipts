@@ -3,7 +3,7 @@ require 'prawn/table'
 
 module Receipts
   class Invoice < Prawn::Document
-    attr_reader :attributes, :id, :company, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status
+    attr_reader :attributes, :id, :company, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status, :outer_box, :inner_box
 
     def initialize(attributes)
       @attributes   = attributes
