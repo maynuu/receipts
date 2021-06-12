@@ -3,13 +3,14 @@ require 'prawn/table'
 
 module Receipts
   class Invoice < Prawn::Document
-    attr_reader :attributes, :id, :company, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status, :outer_box, :inner_box
+    attr_reader :attributes, :id, :company, :font_size, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status, :outer_box, :inner_box
 
     def initialize(attributes)
       @attributes   = attributes
       @id           = attributes.fetch(:id)
       @company      = attributes.fetch(:company)
       @line_items   = attributes.fetch(:line_items)
+      @font_size    = attributes.fetch(:font_size, 12)
       @custom_font  = attributes.fetch(:font, {})
       @message      = attributes.fetch(:message) { default_message }
       @subheading   = attributes.fetch(:subheading) { default_subheading }
@@ -95,19 +96,19 @@ module Receipts
           label "INVOICE DATE"
 
           move_down 5
-          text issue_date.to_s, inline_format: true, size: 12, leading: 4
+          text issue_date.to_s, inline_format: true, size: font_size, leading: 4
 
           move_down 10
           label "DUE DATE"
 
           move_down 5
-          text due_date.to_s, inline_format: true, size: 12, leading: 4
+          text due_date.to_s, inline_format: true, size: font_size, leading: 4
 
           move_down 10
           label "STATUS"
 
           move_down 5
-          text status, inline_format: true, size: 12, leading: 4
+          text status, inline_format: true, size: font_size, leading: 4
         end
       end
 
@@ -125,7 +126,7 @@ module Receipts
 
       def footer
         move_down 30
-        text message, inline_format: true, size: 12, leading: 4
+        text message, inline_format: true, size: font_size, leading: 4
 
         move_down 30
         text company.fetch(:name), inline_format: true
