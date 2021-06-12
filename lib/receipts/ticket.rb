@@ -88,7 +88,7 @@ module Receipts
         text subheading, inline_format: true, size: main_font_size * 1.5, leading: 4
 
         move_down 4
-        text "<color rgb='888888'>#{message}</color>", inline_format: true, size: small_font_size, leading: 4
+        text "<color rgb='888888'>#{message}</color>", inline_format: true, size: main_font_size, leading: 4
       end
 
       def charge_details
