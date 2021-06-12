@@ -96,7 +96,7 @@ module Receipts
 
         borders = line_items.length - 2
 
-        table(line_items, width: bounds.width, cell_style: { size: main_font_size, border_color: 'cccccc', inline_format: true }) do
+        table(line_items, width: bounds.width, column_widths: { 0 => inner_box[:width] / 3 }, cell_style: { size: main_font_size, border_color: 'cccccc', inline_format: true }) do
           cells.padding = 12
           cells.borders = []
           row(0..borders).borders = [:bottom]
