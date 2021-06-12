@@ -82,14 +82,14 @@ module Receipts
         logo = company[:logo]
 
         if logo.nil?
-          move_down 32
+          move_down 48
         elsif logo.is_a?(String)
           image open(logo), height: 48
         else
           image logo, height: 48
         end
 
-        move_down margin_height
+        move_down 32
 
         # Cache the Y value so we can have both boxes at the same height
         top = y
@@ -128,7 +128,7 @@ module Receipts
       end
 
       def charge_details
-        move_down 24
+        move_down 32
 
         borders = line_items.length - 2
 
