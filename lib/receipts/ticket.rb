@@ -77,26 +77,26 @@ module Receipts
         logo = company[:logo]
 
         if logo.nil?
-          move_down 48
+          move_down 64
         elsif logo.is_a?(String)
-          image open(logo), width: half_width
+          image open(logo), width: (inner_box[:width] / 3).round
         else
-          image logo, width: half_width
+          image logo, width: (inner_box[:width] / 3).round
         end
 
-        move_down 32
-        text subheading, inline_format: true, size: main_font_size * 1.2, leading: 4
+        move_down 48
+        text subheading, inline_format: true, size: main_font_size * 1.5, leading: 4
 
         move_down 4
         text "<color rgb='888888'>#{message}</color>", inline_format: true, size: small_font_size, leading: 4
       end
 
       def charge_details
-        move_down 32
+        move_down 64
 
         borders = line_items.length - 2
 
-        table(line_items, width: bounds.width, column_widths: { 0 => (inner_box[:width] / 4).round }, cell_style: { size: main_font_size, border_color: 'cccccc', inline_format: true }) do
+        table(line_items, width: bounds.width, column_widths: { 0 => (inner_box[:width] / 6).round }, cell_style: { size: main_font_size, border_color: 'cccccc', inline_format: true }) do
           cells.padding = 12
           cells.borders = []
           row(0..borders).borders = [:bottom]
@@ -104,7 +104,7 @@ module Receipts
       end
 
       def footer
-        move_down 32
+        move_down 64
         text company.fetch(:name), inline_format: true, size: main_font_size, leading: 4
         text "<color rgb='888888'>#{company.fetch(:address)}</color>", size: small_font_size, inline_format: true, leading: 4
       end
