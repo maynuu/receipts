@@ -6,17 +6,19 @@ module Receipts
     attr_reader :attributes, :id, :company, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status
 
     def initialize(attributes)
-      @attributes  = attributes
-      @id          = attributes.fetch(:id)
-      @company     = attributes.fetch(:company)
-      @line_items  = attributes.fetch(:line_items)
-      @custom_font = attributes.fetch(:font, {})
-      @message     = attributes.fetch(:message) { default_message }
-      @subheading  = attributes.fetch(:subheading) { default_subheading }
-      @bill_to     = Array(attributes.fetch(:bill_to)).join("\n")
-      @issue_date  = attributes.fetch(:issue_date)
-      @due_date    = attributes.fetch(:due_date)
-      @status      = attributes.fetch(:status)
+      @attributes   = attributes
+      @id           = attributes.fetch(:id)
+      @company      = attributes.fetch(:company)
+      @line_items   = attributes.fetch(:line_items)
+      @custom_font  = attributes.fetch(:font, {})
+      @message      = attributes.fetch(:message) { default_message }
+      @subheading   = attributes.fetch(:subheading) { default_subheading }
+      @bill_to      = Array(attributes.fetch(:bill_to)).join("\n")
+      @issue_date   = attributes.fetch(:issue_date)
+      @due_date     = attributes.fetch(:due_date)
+      @status       = attributes.fetch(:status)
+      @outer_box    = attributes.fetch(:outer_box) { default_outer_box }
+      @inner_box    = attributes.fetch(:inner_box) { default_inner_box }
 
       super(margin: 0)
 
@@ -33,6 +35,18 @@ module Receipts
       def default_subheading
         "INVOICE #%{id}"
       end
+    
+      def default_outer_box
+        { width: 612, height: 792 }
+      end
+    
+      def default_inner_box
+        { width: 442, height: 622 }
+      end
+    
+      def margin_width
+        (outer_box[:width] - inner_box[:width]) / 2
+      end
 
       def setup_fonts
         font_families.update "Primary" => custom_font
@@ -40,8 +54,8 @@ module Receipts
       end
 
       def generate
-        bounding_box [0, 792], width: 612, height: 792 do
-          bounding_box [85, 792], width: 442, height: 792 do
+        bounding_box [0, outer_box[:height]], width: outer_box[:width], height: outer_box[:height] do
+          bounding_box [margin_width, outer_box[:height]], width: inner_box[:width], height: outer_box[:height] do
             header
             charge_details
             footer
