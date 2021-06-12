@@ -3,23 +3,23 @@ require 'prawn/table'
 
 module Receipts
   class Invoice < Prawn::Document
-    attr_reader :attributes, :id, :company, :font_size, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status, :outer_box, :inner_box
+    attr_reader :attributes, :id, :company, :custom_font, :line_items, :logo, :message, :product, :subheading, :bill_to, :issue_date, :due_date, :status, :outer_box, :inner_box, :main_font_size
 
     def initialize(attributes)
-      @attributes   = attributes
-      @id           = attributes.fetch(:id)
-      @company      = attributes.fetch(:company)
-      @line_items   = attributes.fetch(:line_items)
-      @font_size    = attributes.fetch(:font_size) { default_font_size }
-      @custom_font  = attributes.fetch(:font, {})
-      @message      = attributes.fetch(:message) { default_message }
-      @subheading   = attributes.fetch(:subheading) { default_subheading }
-      @bill_to      = Array(attributes.fetch(:bill_to)).join("\n")
-      @issue_date   = attributes.fetch(:issue_date)
-      @due_date     = attributes.fetch(:due_date)
-      @status       = attributes.fetch(:status)
-      @outer_box    = attributes.fetch(:outer_box) { default_outer_box }
-      @inner_box    = attributes.fetch(:inner_box) { default_inner_box }
+      @attributes     = attributes
+      @id             = attributes.fetch(:id)
+      @company        = attributes.fetch(:company)
+      @line_items     = attributes.fetch(:line_items)
+      @custom_font    = attributes.fetch(:font, {})
+      @main_font_size = attributes.fetch(:main_font_size, 12)
+      @message        = attributes.fetch(:message) { default_message }
+      @subheading     = attributes.fetch(:subheading) { default_subheading }
+      @bill_to        = Array(attributes.fetch(:bill_to)).join("\n")
+      @issue_date     = attributes.fetch(:issue_date)
+      @due_date       = attributes.fetch(:due_date)
+      @status         = attributes.fetch(:status)
+      @outer_box      = attributes.fetch(:outer_box) { default_outer_box }
+      @inner_box      = attributes.fetch(:inner_box) { default_inner_box }
 
       super(margin: 0)
 
@@ -30,19 +30,15 @@ module Receipts
     private
 
       def default_message
-        "For questions, contact us anytime at <color rgb='326d92'><link href='mailto:#{company.fetch(:email)}?subject=Charge ##{id}'><b>#{company.fetch(:email)}</b></link></color>."
+        "For questions, contact us anytime at <color rgb='326d92'><link href='mailto:#{company.fetch(:email)}'><b>#{company.fetch(:email)}</b></link></color>."
       end
 
       def default_subheading
         "INVOICE #%{id}"
       end
     
-      def default_font_size
-        12
-      end
-    
       def small_font_size
-        (font_size * 0.8).round
+        (main_font_size * 0.8).round
       end
     
       def default_outer_box
@@ -59,6 +55,10 @@ module Receipts
     
       def margin_height
         (outer_box[:height] - inner_box[:height]) / 2
+      end
+
+      def half_width
+        inner_box[:width] / 2
       end
 
       def setup_fonts
@@ -84,52 +84,55 @@ module Receipts
         if logo.nil?
           move_down 32
         elsif logo.is_a?(String)
-          image open(logo), height: 32
+          image open(logo), height: 48
         else
-          image logo, height: 32
+          image logo, height: 48
         end
 
-        move_down 8
-        label (subheading % {id: id})
-
-        move_down 10
+        move_down margin_height
 
         # Cache the Y value so we can have both boxes at the same height
         top = y
-        bounding_box([0, y], width: 200) do
+        bounding_box([0, y], width: half_width) do
+          label "INVOICE NO."
+
+          move_down 4
+          text id, inline_format: true, size: main_font_size, leading: 4
+
+          move_down 16
           label "BILL TO"
 
-          move_down 5
-          text_box bill_to, at: [0, cursor], width: 200, height: 75, inline_format: true, size: small_font_size, leading: 4, overflow: :shrink_to_fit
+          move_down 4
+          text_box bill_to, at: [0, cursor], width: half_width, height: 75, inline_format: true, size: main_font_size, leading: 4, overflow: :shrink_to_fit
 
         end
 
-        bounding_box([250, top], width: 200) do
+        bounding_box([half_width + 12, top], width: half_width - 12) do
           label "INVOICE DATE"
 
-          move_down 5
-          text issue_date.to_s, inline_format: true, size: font_size, leading: 4
+          move_down 4
+          text issue_date.to_s, inline_format: true, size: main_font_size, leading: 4
 
-          move_down 10
+          move_down 16
           label "DUE DATE"
 
-          move_down 5
-          text due_date.to_s, inline_format: true, size: font_size, leading: 4
+          move_down 4
+          text due_date.to_s, inline_format: true, size: main_font_size, leading: 4
 
-          move_down 10
+          move_down 16
           label "STATUS"
 
-          move_down 5
-          text status, inline_format: true, size: font_size, leading: 4
+          move_down 4
+          text status, inline_format: true, size: main_font_size, leading: 4
         end
       end
 
       def charge_details
-        move_down 30
+        move_down 24
 
         borders = line_items.length - 2
 
-        table(line_items, width: bounds.width, cell_style: { border_color: 'cccccc', inline_format: true }) do
+        table(line_items, width: bounds.width, cell_style: { size: main_font_size, border_color: 'cccccc', inline_format: true }) do
           cells.padding = 12
           cells.borders = []
           row(0..borders).borders = [:bottom]
@@ -137,16 +140,16 @@ module Receipts
       end
 
       def footer
-        move_down 30
-        text message, inline_format: true, size: font_size, leading: 4
+        move_down 32
+        text message, inline_format: true, size: main_font_size, leading: 4
 
-        move_down 30
-        text company.fetch(:name), inline_format: true
-        text "<color rgb='888888'>#{company.fetch(:address)}</color>", inline_format: true
+        move_down 24
+        text company.fetch(:name), inline_format: true, size: main_font_size, leading: 4
+        text "<color rgb='888888'>#{company.fetch(:address)}</color>", size: small_font_size, inline_format: true, leading: 4
       end
 
       def label(text)
-        text "<color rgb='a6a6a6'>#{text}</color>", inline_format: true, size: 8
+        text "<color rgb='a6a6a6'>#{text}</color>", inline_format: true, size: small_font_size, leading: 4
       end
   end
 end
