@@ -10,7 +10,7 @@ module Receipts
       @id           = attributes.fetch(:id)
       @company      = attributes.fetch(:company)
       @line_items   = attributes.fetch(:line_items)
-      @font_size    = attributes.fetch(:font_size, 12)
+      @font_size    = attributes.fetch(:font_size) { default_font_size }
       @custom_font  = attributes.fetch(:font, {})
       @message      = attributes.fetch(:message) { default_message }
       @subheading   = attributes.fetch(:subheading) { default_subheading }
@@ -37,6 +37,14 @@ module Receipts
         "INVOICE #%{id}"
       end
     
+      def default_font_size
+        12
+      end
+    
+      def small_font_size
+        (font_size * 0.8).round
+      end
+    
       def default_outer_box
         { width: 612, height: 792 }
       end
@@ -47,6 +55,10 @@ module Receipts
     
       def margin_width
         (outer_box[:width] - inner_box[:width]) / 2
+      end
+    
+      def margin_height
+        (outer_box[:height] - inner_box[:height]) / 2
       end
 
       def setup_fonts
@@ -65,7 +77,7 @@ module Receipts
       end
 
       def header
-        move_down 60
+        move_down margin_height
 
         logo = company[:logo]
 
@@ -88,7 +100,7 @@ module Receipts
           label "BILL TO"
 
           move_down 5
-          text_box bill_to, at: [0, cursor], width: 200, height: 75, inline_format: true, size: 10, leading: 4, overflow: :shrink_to_fit
+          text_box bill_to, at: [0, cursor], width: 200, height: 75, inline_format: true, size: small_font_size, leading: 4, overflow: :shrink_to_fit
 
         end
 
