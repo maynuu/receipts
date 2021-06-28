@@ -88,7 +88,7 @@ module Receipts
         text subheading, inline_format: true, size: main_font_size * 1.5, leading: 4
 
         move_down 4
-        text "<color rgb='888888'>#{message}</color>", inline_format: true, size: main_font_size, leading: 4
+        text message, inline_format: true, size: main_font_size, leading: 4
       end
 
       def charge_details
@@ -106,10 +106,10 @@ module Receipts
       def footer
         move_down 64
         text company.fetch(:name), inline_format: true, size: main_font_size, leading: 4
-        text "<color rgb='888888'>#{company.fetch(:address)}</color>", size: small_font_size, inline_format: true, leading: 4
+        text company.fetch(:address), size: small_font_size, inline_format: true, leading: 4
 
         move_down 24
-        text "<color rgb='888888'>#{company.fetch(:url)}</color>", size: small_font_size, inline_format: true, leading: 4
+        text company.fetch(:url), size: small_font_size, inline_format: true, leading: 4
       end
   end
 end
